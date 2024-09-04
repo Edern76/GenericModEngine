@@ -9,5 +9,9 @@
     <ItemGroup>
       <PackageReference Include="JSONPatcherCore" Version="1.0.0" />
     </ItemGroup>
+    
+    <ItemGroup>
+        <InternalsVisibleTo Include="GenericModEngine.Tests" />
+    </ItemGroup>
 
 </Project>

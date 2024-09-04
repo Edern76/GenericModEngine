@@ -23,6 +23,13 @@ public class Mod
         this.Manifest = JsonConvert.DeserializeObject<ModManifest>(File.ReadAllText(manifestPath)) ?? throw new InvalidOperationException($"Failed to load manifest from {manifestPath}");
     }
 
+    // Only for testing
+    internal Mod(string basePath, ModManifest manifest)
+    {
+        this.BasePath = basePath;
+        this.Manifest = manifest;
+    }
+
     public bool IsCompatibleWith(Mod otherMod)
     {
         return !Manifest.Incompatibilities.Contains(otherMod.Manifest.ID);
