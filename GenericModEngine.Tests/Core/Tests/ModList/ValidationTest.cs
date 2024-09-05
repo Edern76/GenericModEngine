@@ -20,6 +20,7 @@ public class ValidationTest
             LoadAfterMods.Basic1,
             LoadAfterMods.AfterBefore3,
             DependencyMods.Dependent2,
+            CompatibilityMods.Incompatible1,
             DependencyMods.Dependent1,
         });
         
@@ -66,5 +67,21 @@ public class ValidationTest
         Assert.True(errors.All(e => e is MissingDependencyError));
         Assert.Contains(errors, e => e.Source == DependencyMods.Dependent2.Manifest.ID && e.Target == DependencyMods.Dependency2.Manifest.ID);
         Assert.Contains(errors, e => e.Source == DependencyMods.Dependent3.Manifest.ID && e.Target == DependencyMods.Dependency4.Manifest.ID);
+    }
+
+    [Fact]
+    public void Test_Validate_Incompatible()
+    {
+        ModList modList = new ModList(new List<Mod>()
+        {
+            CompatibilityMods.Compatible1,
+            CompatibilityMods.Incompatible1,
+            CompatibilityMods.Incompatible2,
+        });
+        
+        List<IModListError> errors = modList.Validate();
+        Assert.Single(errors);
+        Assert.True(errors[0] is IncompatibleModError);
+        Assert.True(errors[0] is IModListError e && e.Source == CompatibilityMods.Incompatible1.Manifest.ID && e.Target == CompatibilityMods.Compatible1.Manifest.ID);
     }
 }

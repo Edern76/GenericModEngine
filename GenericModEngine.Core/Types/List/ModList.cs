@@ -74,7 +74,7 @@ public class ModList
         {
             return -1;
         }
-        int targetIndex = presentModsAfter.Select(id => Mods.IndexOf(Mods.First(m => m.Manifest.ID == id))).Max();
+        int targetIndex = presentModsAfter.Select(id => Mods.IndexOf(Mods.First(m => m.Manifest.ID == id))).Max() + 1;
         return targetIndex;
     }
     public void FixSimpleErrors()
