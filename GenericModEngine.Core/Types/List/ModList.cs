@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using GenericModEngine.Core.Types.Error;
 
 namespace GenericModEngine.Core.Types;
@@ -74,7 +75,8 @@ public class ModList
         {
             return -1;
         }
-        int targetIndex = presentModsAfter.Select(id => Mods.IndexOf(Mods.First(m => m.Manifest.ID == id))).Max() + 1;
+        List<Mod> modsWithoutCurrent = Mods.Where(m => m != mod).ToList();
+        int targetIndex = presentModsAfter.Select(id => modsWithoutCurrent.IndexOf(modsWithoutCurrent.First(mm => mm.Manifest.ID == id))).Max() + 1;
         return targetIndex;
     }
     public void FixSimpleErrors()
@@ -82,7 +84,7 @@ public class ModList
         List<IModListError> errors;
         do
         {
-            errors = Validate().Where(e => e is NotLoadedAfterError).ToList();
+            errors = Validate().Where(e => e is NotLoadedAfterError).OrderBy(e => Mods.IndexOf(Mods.First(m => m.Manifest.ID == e.Source))).ToList();
             
             foreach (NotLoadedAfterError error in errors.OfType<NotLoadedAfterError>())
             {
