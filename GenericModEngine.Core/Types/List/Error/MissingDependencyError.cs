@@ -4,6 +4,8 @@ public class MissingDependencyError : IModListError
 {
     public string Source { get; init; }
     public string? Target { get; init; }
+    
+    public ModListErrorSeverity Severity => ModListErrorSeverity.FIXABLE;
 
     public MissingDependencyError(string source, string? target)
     {

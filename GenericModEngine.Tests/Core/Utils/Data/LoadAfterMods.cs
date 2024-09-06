@@ -17,6 +17,9 @@ public static class LoadAfterMods
     public static readonly Mod AfterBasic1AndBefore2 = new Mod("_", new ModManifest() { ID = "After6", LoadAfter = new string[] { "Basic1", "Before2" } });
     public static readonly Mod AfterBasic2AndBefore1 = new Mod("_", new ModManifest() { ID = "After7", LoadAfter = new string[] { "Basic2", "Before1" } });
     public static readonly Mod AfterBasic2AndBefore2 = new Mod("_", new ModManifest() { ID = "After8", LoadAfter = new string[] { "Basic2", "Before2" } });
+    
+    public static readonly Mod Circular1 = new Mod("_", new ModManifest() { ID = "Circular1", LoadAfter = new string[] { "Circular2" } });
+    public static readonly Mod Circular2 = new Mod("_", new ModManifest() { ID = "Circular2", LoadAfter = new string[] { "Circular1" } });
 
     public static readonly Mod AfterAfterAfterBefore3 =
         new Mod("_", new ModManifest() { ID = "After7", LoadAfter = new string[] { "After4" } });

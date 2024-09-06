@@ -84,7 +84,11 @@ public class ModList
         List<IModListError> errors;
         do
         {
-            errors = Validate().Where(e => e is NotLoadedAfterError).OrderBy(e => Mods.IndexOf(Mods.First(m => m.Manifest.ID == e.Source))).ToList();
+            errors = Validate().Where(e => e is NotLoadedAfterError || e is CircularLoadAfterError).OrderBy(e => Mods.IndexOf(Mods.First(m => m.Manifest.ID == e.Source))).ToList();
+            if (errors.Any(e => e is CircularLoadAfterError))
+            {
+                throw new InvalidOperationException("Cannot automatically fix errors because there is at least one circular load order requirement.");
+            }
             
             foreach (NotLoadedAfterError error in errors.OfType<NotLoadedAfterError>())
             {
@@ -149,6 +153,10 @@ public class ModList
             if (Mods.IndexOf(otherMod) > Mods.IndexOf(mod) && mod.Manifest.LoadAfter.Contains(otherMod.Manifest.ID))
             {
                 errors.Add(new NotLoadedAfterError(mod.Manifest.ID, otherMod.Manifest.ID));
+                if (otherMod.Manifest.LoadAfter.Contains(mod.Manifest.ID))
+                {
+                    errors.Add(new CircularLoadAfterError(mod.Manifest.ID, otherMod.Manifest.ID));
+                }
             }
         }
         

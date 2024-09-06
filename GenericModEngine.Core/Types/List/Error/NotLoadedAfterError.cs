@@ -4,6 +4,8 @@ public class NotLoadedAfterError : IModListError
 {
     public string Source { get; init; }
     public string? Target { get; init; }
+    
+    public ModListErrorSeverity Severity => ModListErrorSeverity.FIXABLE;
 
     public NotLoadedAfterError(string source, string? target)
     {

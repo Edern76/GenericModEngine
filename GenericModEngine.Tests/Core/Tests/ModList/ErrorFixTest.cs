@@ -35,4 +35,25 @@ public class ErrorFixTest
         Assert.Equal(LoadAfterMods.AfterBasic2AndBefore2, modList.ReadOnlyList[8]);
         Assert.Equal(LoadAfterMods.AfterAfterAfterBefore3, modList.ReadOnlyList[9]);
     }
+
+    [Fact]
+    public void Test_FixSimpleErrors_ThrowOnCircular()
+    {
+        ModList modList = new ModList(new List<Mod>()
+        {
+            LoadAfterMods.AfterBefore2,
+            LoadAfterMods.Circular2,
+            LoadAfterMods.AfterBasic2AndBefore2,
+            LoadAfterMods.Before2,
+            LoadAfterMods.Before3,
+            LoadAfterMods.AfterBefore3,
+            LoadAfterMods.AfterBasic1AndBefore2,
+            LoadAfterMods.Basic1,
+            LoadAfterMods.AfterAfterBefore2,
+            LoadAfterMods.Basic2,
+            LoadAfterMods.Circular1,
+            LoadAfterMods.AfterAfterAfterBefore3,
+        });
+        Assert.Throws<InvalidOperationException>(() => modList.FixSimpleErrors());
+    }
 }

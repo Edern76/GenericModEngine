@@ -51,6 +51,23 @@ public class ValidationTest
     }
 
     [Fact]
+    public void Test_Validate_Circular()
+    {
+        ModList modList = new ModList(new List<Mod>()
+        {
+            DependencyMods.CircularDependency1, // Should not count as an error
+            LoadAfterMods.Circular1, // Should count as an error
+            LoadAfterMods.Circular2,
+            DependencyMods.CircularDependency2,
+        });
+        
+        List<IModListError> errors = modList.Validate();
+        Assert.Equal(2, errors.Count);
+        Assert.Contains(errors, e => e is NotLoadedAfterError);
+        Assert.Contains(errors, e => e is CircularLoadAfterError && (e.Source == LoadAfterMods.Circular1.Manifest.ID && e.Target == LoadAfterMods.Circular2.Manifest.ID || e.Source == LoadAfterMods.Circular2.Manifest.ID && e.Target == LoadAfterMods.Circular1.Manifest.ID));
+    }
+
+    [Fact]
     public void Test_Validate_MissingDependency()
     {
         ModList modList = new ModList(new List<Mod>()

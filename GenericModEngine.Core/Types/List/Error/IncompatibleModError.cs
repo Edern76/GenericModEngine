@@ -4,6 +4,7 @@ public class IncompatibleModError : IModListError
 {
     public string Source { get; init; }
     public string? Target { get; init; }
+    public ModListErrorSeverity Severity => ModListErrorSeverity.FIXABLE;
 
     public IncompatibleModError(string source, string? target)
     {
