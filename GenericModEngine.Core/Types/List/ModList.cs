@@ -45,7 +45,14 @@ public class ModList
 
     public void Move(Mod mod, int position)
     {
-        Mods.Move(Mods.IndexOf(mod), position);
+        try
+        {
+            Mods.Move(Mods.IndexOf(mod), position);
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            throw new ArgumentException($"Cannot move mod {mod} to position {position} as it is not in the list");
+        }
     }
 
     public List<IModListError> Validate()
@@ -71,12 +78,43 @@ public class ModList
     public int GetInsertionIndex(Mod mod)
     {
         List<string> presentModsAfter = mod.Manifest.LoadAfter.Where(id => Mods.Any(m => m.Manifest.ID == id)).ToList();
-        if (presentModsAfter.Count == 0)
+        List<string> modsNeededToLoadBefore = Mods.Where(m => m.Manifest.LoadAfter.Contains(mod.Manifest.ID)).Select(m => m.Manifest.ID).ToList();
+        if (presentModsAfter.Count == 0 && modsNeededToLoadBefore.Count == 0)
         {
             return -1;
         }
+        int minIndex = GetMinInsertionIndex(mod, presentModsAfter);
+        int maxIndex = GetMaxInsertionIndex(mod, modsNeededToLoadBefore);
+        if (maxIndex != -1 && minIndex > maxIndex)
+        {
+            throw new InvalidOperationException($"Cannot determine insertion index for mod {mod.Manifest.ID} as it would create conflicts.");
+        }
+        int targetIndex = maxIndex == -1 ? minIndex : maxIndex;
+        return targetIndex;
+    }
+
+    private int GetMinInsertionIndex(Mod mod, List<string> presentModsAfter)
+    {
+        if (presentModsAfter.Count == 0)
+        {
+            return 0;
+        }
         List<Mod> modsWithoutCurrent = Mods.Where(m => m != mod).ToList();
         int targetIndex = presentModsAfter.Select(id => modsWithoutCurrent.IndexOf(modsWithoutCurrent.First(mm => mm.Manifest.ID == id))).Max() + 1;
+        return targetIndex;
+    }
+
+    private int GetMaxInsertionIndex(Mod mod, List<string> modsNeededToLoadBefore)
+    {
+        if (modsNeededToLoadBefore.Count == 0)
+        {
+            return -1;
+        }
+        int targetIndex = modsNeededToLoadBefore.Select(id => Mods.IndexOf(Mods.First(mm => mm.Manifest.ID == id))).Min();
+        if (targetIndex > 0)
+        {
+            targetIndex--;
+        }
         return targetIndex;
     }
     public void FixSimpleErrors()
@@ -107,7 +145,7 @@ public class ModList
         } while (errors.Count > 0);
     }
 
-    public void FixMissingDependencies(Mod mod, List<Mod> allMods)
+    public void FixMissingDependencies(List<Mod> allMods)
     {
         List<IModListError> errors;
         do

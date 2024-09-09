@@ -3,7 +3,7 @@ using GenericModEngine.Tests.Core.Utils.Data;
 
 namespace GenericModEngine.Tests;
 
-public class InsertionTest
+public class AutoInsertionTest
 {
     [Fact]
     public void Test_InsertionIndex()

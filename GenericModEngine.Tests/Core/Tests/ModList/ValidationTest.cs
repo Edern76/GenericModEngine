@@ -1,4 +1,5 @@
-﻿using GenericModEngine.Core.Types;
+﻿using System.Reflection;
+using GenericModEngine.Core.Types;
 using GenericModEngine.Core.Types.Error;
 using GenericModEngine.Tests.Core.Utils.Data;
 
@@ -100,5 +101,32 @@ public class ValidationTest
         Assert.Single(errors);
         Assert.True(errors[0] is IncompatibleModError);
         Assert.True(errors[0] is IModListError e && e.Source == CompatibilityMods.Incompatible1.Manifest.ID && e.Target == CompatibilityMods.Compatible1.Manifest.ID);
+    }
+
+    [Fact]
+    public void Test_Validate_Single_NotInList()
+    {
+        ModList modList = new ModList(new List<Mod>()
+        {
+            DependencyMods.Dependency1,
+            DependencyMods.Dependency2,
+            DependencyMods.Dependency3,
+            DependencyMods.Dependent1,
+            DependencyMods.Dependent2,
+            DependencyMods.Dependent3,
+        });
+        
+        MethodInfo method = typeof(ModList).GetMethod("ValidateMod", BindingFlags.NonPublic | BindingFlags.Instance);
+        Assert.Throws<ArgumentException>(() =>
+        {
+            try
+            {
+                return method!.Invoke(modList, new object[] { LoadAfterMods.Basic1 });
+            }
+            catch (TargetInvocationException e)
+            {
+                throw e.InnerException!;
+            }
+        });
     }
 }
