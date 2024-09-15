@@ -1,4 +1,5 @@
 using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
 using GenericModEngine.Core.Types.Assemblies;
 using Newtonsoft.Json;
 
@@ -41,13 +42,16 @@ public class Mod
         {
             throw new FormatException($"Manifest at {manifestPath} is invalid");
         }
-        if (Directory.Exists(GetAssembliesFolder))
+        if (fileSystem.Directory.Exists(GetAssembliesFolder))
         {
-            DirectoryInfo assembliesFolder = new DirectoryInfo(GetAssembliesFolder);
-            List<FileInfo> files = new List<FileInfo>(
+            IDirectoryInfo assembliesFolder = fileSystem.DirectoryInfo.New(GetAssembliesFolder);
+            List<IFileInfo> files = new List<IFileInfo>(
                 assembliesFolder.GetFiles("*.dll", SearchOption.TopDirectoryOnly)
             );
-            UnloadedAssemblies.AddRange(files.Select(f => new UnloadedAssemblyWrapper(f.FullName)));
+            bool mock = fileSystem is MockFileSystem;
+            UnloadedAssemblies.AddRange(
+                files.Select(f => new UnloadedAssemblyWrapper(f.FullName, mock))
+            );
         }
     }
 

@@ -8,8 +8,22 @@ public class UnloadedAssemblyWrapper
     public AssemblyName AssemblyName { get; init; }
 
     public UnloadedAssemblyWrapper(string assemblyPath)
+        : this(assemblyPath, false) { }
+
+    internal UnloadedAssemblyWrapper(string assemblyPath, bool mock)
     {
         this.AssemblyPath = assemblyPath;
-        this.AssemblyName = AssemblyName.GetAssemblyName(assemblyPath);
+        if (!this.AssemblyPath.EndsWith(".dll"))
+        {
+            throw new InvalidOperationException($"File at {assemblyPath} is not a valid DLL.");
+        }
+        if (mock)
+        {
+            this.AssemblyName = new AssemblyName("MockAssembly");
+        }
+        else
+        {
+            this.AssemblyName = AssemblyName.GetAssemblyName(assemblyPath);
+        }
     }
 }
