@@ -66,8 +66,14 @@ public class ModUnloadedAssembliesListingTest
         Mod mod = new Mod(Path.Combine("C:", "Game", "Mods", "Mod1"), _fileSystem);
         List<UnloadedAssemblyWrapper> unloadedAssemblies = mod.UnloadedAssemblies;
         Assert.Equal(2, unloadedAssemblies.Count);
-        Assert.Contains(unloadedAssemblies, a => a.AssemblyPath == Assembly1Path);
-        Assert.Contains(unloadedAssemblies, a => a.AssemblyPath == Assembly2Path);
+        Assert.Contains(
+            unloadedAssemblies,
+            a => Path.GetFullPath(a.AssemblyPath) == Path.GetFullPath(Assembly1Path)
+        );
+        Assert.Contains(
+            unloadedAssemblies,
+            a => Path.GetFullPath(a.AssemblyPath) == Path.GetFullPath(Assembly2Path)
+        );
     }
 
     [Fact]
